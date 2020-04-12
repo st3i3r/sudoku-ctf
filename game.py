@@ -9,7 +9,6 @@ PORT = 19999
 def send_random_action(r, actions):
     action = choice(actions)
     r.sendline(action)
-    print("Send {}".format(action))
 
     return action
 
@@ -20,15 +19,10 @@ spells = ["fire", "water", "earth"]
 
 def play(r, way):
     for i in range(len(way)):
-        print("Send {}".format(way[i]))
         r.sendline(way[i])
-
         decision = r.recvline()
-        print(decision.decode())
-
         monster = r.recvline()
         scene = monster
-        print(monster.decode())
 
     return scene.decode()
 
@@ -62,7 +56,7 @@ def main_loop():
                 r.close()
             else:
                 way.append(action)
-                print(way)
+                print("Count: {}".format(len(way)))
                 break
         except:
             r.interactive()
