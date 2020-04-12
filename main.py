@@ -106,7 +106,7 @@ PORT = 31337
 
 r = pwn.remote(HOST, PORT)
 intro = r.recvuntil("So, let's begin! (from kECZnPrIufo)")
-print(intro)
+print(intro.decode())
 time.sleep(5)
 r.sendline('a' * 100)
 
@@ -115,18 +115,19 @@ while 1:
         info = r.recvuntil("Turn: ")
 
         turn = r.recvline()
-        print(f'Turn: {turn.decode()}')
+        print('Turn: ', turn.decode())
 
         r.recvuntil(">>>")
         sudoku = r.recvuntil("<<<").decode()[:-3]
+        print(sudoku)
         board, index_list = parse_data(sudoku)
         solveSudoku(board)
 
         r.recvuntil("Your solution:\n")
         for index in index_list:
             solution = get_guessed_number(board, index)
-            r.sendline(f"{index[0] + 1} {index[1] + 1} {solution}".encode())
-            print(f"Sending line {index[0] + 1} {index[1] + 1} {solution}")
+            r.sendline("{} {} {}".format(index[0] + 1, index[1] + 1, solution).encode())
+            print("Sending line {} {} {}".format(index[0] + 1, index[1] + 1, solution))
 
         r.sendline("DONE")
     except:
