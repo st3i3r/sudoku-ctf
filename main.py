@@ -1,5 +1,6 @@
 import pwn
 import base64
+import time
 
 
 def google_ctf():
@@ -105,27 +106,28 @@ PORT = 31337
 
 r = pwn.remote(HOST, PORT)
 intro = r.recvuntil("So, let's begin! (from kECZnPrIufo)")
+print(intro)
+time.sleep(5)
 r.sendline('a' * 100)
 
 while 1:
-    _turn = r.recvuntil("Turn: ")
-    turn = r.recvline()
-    print(f'Turn: {turn.decode()}')
+    try:
+        info = r.recvuntil("Turn: ")
 
-    r.recvuntil(">>>")
-    sudoku = r.recvuntil("<<<").decode()[:-3]
-    print(sudoku)
-    board, index_list = parse_data(sudoku)
-    solveSudoku(board)
+        turn = r.recvline()
+        print(f'Turn: {turn.decode()}')
 
-    r.recvuntil("Your solution:\n")
-    print(index_list)
-    for index in index_list:
-        solution = get_guessed_number(board, index)
-        r.sendline(f"{index[0] + 1} {index[1] + 1} {solution}".encode())
-        print(f"Sending line {index[0] + 1} {index[1] + 1} {solution}")
+        r.recvuntil(">>>")
+        sudoku = r.recvuntil("<<<").decode()[:-3]
+        board, index_list = parse_data(sudoku)
+        solveSudoku(board)
 
-    r.sendline("DONE")
-    print(r.recvall())
+        r.recvuntil("Your solution:\n")
+        for index in index_list:
+            solution = get_guessed_number(board, index)
+            r.sendline(f"{index[0] + 1} {index[1] + 1} {solution}".encode())
+            print(f"Sending line {index[0] + 1} {index[1] + 1} {solution}")
 
-
+        r.sendline("DONE")
+    except:
+        r.interactive()
